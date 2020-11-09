@@ -109,9 +109,9 @@ app.post("/", function(request, response) {
     paypal.configure({
         mode: "live",
         client_id:
-        'AT30P5Vyi-tKTeG71nhAPbYLdAbNSX6xC7qf438wf0JbfUqX-KYzwkuNzwGFeKTBfrLrZKQdQ20ZP4lH',
+        '',
         client_secret:
-        'EO5reAmueLcEF-cOogpA5ZPCiXVXtG_FHaja6l00peFfqFLWicuzbhgJgqZh2uEY_CIWCjZNsGcmJJof',
+        '',
     });
 
     app.get("/donate", (req, res) => res.sendFile(__dirname + "views/donate.html"));
