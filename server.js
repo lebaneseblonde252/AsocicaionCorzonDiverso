@@ -64,7 +64,7 @@ app.use(log);
 
 // HTTP POST
 
-app.post("/", function(request, response) {
+app.post("/sendmail", function(request, response) {
     // create reusable transporter object using the default SMTP transport
     let transporter = nodemailer.createTransport(smtpTransport({
         host: 'smtp.gmail.com',
@@ -83,14 +83,14 @@ app.post("/", function(request, response) {
         }
     }));
 
-    let textBody = `FROM: ${request.body.name} EMAIL: ${request.body.email} MESSAGE: ${request.body.message}`;
-    let htmlBody = `<h2>Contact Form</h2><p>from: ${request.body.name} <a href="mailto:${request.body.email}">${request.body.email}</a></p><p>${request.body.message}</p>`;
+    let text = `FROM: ${request.body.name} EMAIL: ${request.body.email} MESSAGE: ${request.body.message}`;
+    let html = `<h2>Contact Form</h2><p>from: ${request.body.name} <a href="mailto:${request.body.email}">${request.body.email}</a></p><p>${request.body.message}</p>`;
     let mail = {
         from: "loganwiley89@yahoo.com", // sender address
         to: "asociacioncorazondiverso@gmail.com", // list of receivers (THIS COULD BE A DIFFERENT ADDRESS or ADDRESSES SEPARATED BY COMMAS)
         subject: "Contact Form", // Subject line
-        text: textBody,
-        html: htmlBody
+        text: text,
+        html: html
     };
 
     // send mail with defined transport object
