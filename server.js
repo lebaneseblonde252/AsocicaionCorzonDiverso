@@ -1,18 +1,20 @@
 require('dotenv').config({ path: require('find-config')('.env') });
-
+const request = require("request");
 const express = require('express');
 
 const app = new express();
 
-let nodemailer = require('nodemailer');
+const nodemailer = require('nodemailer');
 
 let smtpTransport = require('nodemailer-smtp-transport');
 const path = require("express");
-
+const http = require("http");
 const paypal = require("paypal-rest-sdk");
+const {messageId} = require("nodemailer");
+const {sendMail} = require("nodemailer");
 
 // Parse URL-encoded bodies (as sent by HTML forms)
-app.use(express.urlencoded());
+app.use(express.urlencoded({extended: false}));
 
 // Parse JSON bodies (as sent by API clients)
 app.use(express.json());
@@ -83,10 +85,11 @@ app.post("/sendmail", function(request, response) {
         }
     }));
 
-    let text = `FROM: ${request.body.name} EMAIL: ${request.body.email} MESSAGE: ${request.body.message}`;
-    let html = `<h2>Contact Form</h2><p>from: ${request.body.name} <a href="mailto:${request.body.email}">${request.body.email}</a></p><p>${request.body.message}</p>`;
+
+    const text = `FROM: ${request.body.name}\nEMAIL: ${request.body.email}\nMESSAGE: ${request.body.message}`;
+    const html = `<h2>Contact Form</h2><p>from: ${request.body.name} <a href="mailto:${request.body.email}">${request.body.email}</a></p><p>${request.body.message}</p>`;
     let mail = {
-        from: "loganwiley89@yahoo.com", // sender address
+        from: `"${request.body.name}" <${request.body.email}>`, // sender address
         to: "asociacioncorazondiverso@gmail.com", // list of receivers (THIS COULD BE A DIFFERENT ADDRESS or ADDRESSES SEPARATED BY COMMAS)
         subject: "Contact Form", // Subject line
         text: text,
@@ -95,12 +98,11 @@ app.post("/sendmail", function(request, response) {
 
     // send mail with defined transport object
     transporter.sendMail(mail, function (err, info) {
-        if(err) {
-            console.log(err);
-            response.json({ message: "message not sent: an error occurred; check the server's console log" });
-        }
-        else {
-            response.json({ message: `message sent: ${info.messageId}` });
+        if (err) {
+            console.log(err)
+            response.json({message: "message not sent: an error occurred; check the server's console log"});
+        } else {
+            response.json({message: "message sent: ${messageId}"});
         }
     });
 
@@ -109,13 +111,13 @@ app.post("/sendmail", function(request, response) {
     paypal.configure({
         mode: "live",
         client_id:
-        '',
+            'AT30P5Vyi-tKTeG71nhAPbYLdAbNSX6xC7qf438wf0JbfUqX-KYzwkuNzwGFeKTBfrLrZKQdQ20ZP4lH',
         client_secret:
-        '',
+            'EO5reAmueLcEF-cOogpA5ZPCiXVXtG_FHaja6l00peFfqFLWicuzbhgJgqZh2uEY_CIWCjZNsGcmJJof',
     });
 
     app.get("/donate", (req, res) => res.sendFile(__dirname + "views/donate.html"));
-    app.post(`views/path`, (req, res) => {
+    app.post("/", (req, res) => {
         const create_payment_json = {
             intent: "sale",
             payer: {
@@ -161,7 +163,7 @@ app.post("/sendmail", function(request, response) {
     });
 
     app.get("/success", (req, res) => {
-        const payerId = req.query.PayerID;
+        const payerId = req.query.payerID;
         const paymentId = req.query.paymentId;
 
         const execute_payment_json = {
@@ -190,5 +192,3 @@ app.post("/sendmail", function(request, response) {
         });
     });
 });
-
-
